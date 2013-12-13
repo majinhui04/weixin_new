@@ -1,0 +1,192 @@
+<!doctype html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<link rel="stylesheet" type="text/css" href="../vendor/bootstrap-3.0.3/css/bootstrap.css">
+	<link rel="shortcut icon" href="../icon/favicon.png">
+	<link rel="stylesheet" type="text/css" href="../css/public.css">
+	<title>微信管理平台</title>
+	<style type="text/css">
+	/* Sticky footer styles
+-------------------------------------------------- */
+
+html,
+body {
+  height: 100%;
+ 
+}
+
+
+#wrap {
+  min-height: 100%;
+  height: auto;
+  margin: 0 auto -60px;
+  padding: 0 0 60px;
+}
+
+/* Set the fixed height of the footer here */
+#footer {
+  height: 60px;
+  background-color: #f5f5f5;
+}
+
+
+#wrap > .container {
+  padding: 60px 15px 0;
+}
+.container .text-muted {
+  margin: 20px 0;
+}
+
+#footer > .container {
+  padding-left: 15px;
+  padding-right: 15px;
+}
+
+code {
+  font-size: 80%;
+}
+
+#weixin-wrapper .breadcrumb {
+margin: 0;
+border: 1px solid #ddd;
+border-radius: 3px;
+background: linear-gradient(to bottom, rgba(255,255,255,0) 0%,rgba(0,0,0,0.1) 100%);
+}
+#weixin-wrapper .box {
+border: 1px solid #DEDEDE;
+border-radius: 3px;
+-webkit-border-radius: 3px;
+-moz-border-radius: 3px;
+margin-bottom: 10px;
+box-shadow: 0 0 10px rgba(189, 189, 189, 0.4);
+-webkit-box-shadow: 0 0 10px rgba(189, 189, 189, 0.4);
+-moz-box-shadow: 0 0 10px rgba(189, 189, 189, 0.4);
+}
+#weixin-wrapper .box-content {
+padding: 10px;
+position: relative;
+min-height: 350px;
+}
+#weixin-wrapper .nav-tabs {
+margin-bottom: 15px;
+}
+#weixin-wrapper th,
+#weixin-wrapper td{
+	text-align: center;
+	vertical-align: middle;
+}
+#weixin-wrapper .tbl-index{
+	width: 8%;
+}
+#weixin-wrapper .tbl-handle{
+	width: 24%;
+}
+	</style>
+</head>
+<body id="weixin-wrapper" ng-controller="mainCtrl">
+ 
+	<div class="navbar navbar-default" role="navigation">
+        <div class="container">
+          	<div class="navbar-header">
+	            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+		            <span class="sr-only">Toggle navigation</span>
+		            <span class="icon-bar"></span>
+		            <span class="icon-bar"></span>
+		            <span class="icon-bar"></span>
+	            </button>
+            <a class="navbar-brand" href="#about">微信管理</a>
+          	</div>
+          <div class="collapse navbar-collapse">
+            <ul class="nav navbar-nav">
+              <li class="active"><a href="#">Home</a></li>
+              <li><a href="#about">About</a></li>
+              <li><a href="#contact">Contact</a></li>
+              <li class="dropdown">
+                <a href="#" class="dropdown-toggle" data-toggle="dropdown">Dropdown <b class="caret"></b></a>
+                <ul class="dropdown-menu">
+                  <li><a href="#">Action</a></li>
+                  <li><a href="#">Another action</a></li>
+                  <li><a href="#">Something else here</a></li>
+                  <li class="divider"></li>
+                  <li class="dropdown-header">Nav header</li>
+                  <li><a href="#">Separated link</a></li>
+                  <li><a href="#">One more separated link</a></li>
+                </ul>
+              </li>
+            </ul>
+          </div><!--/.nav-collapse -->
+        </div>
+    </div>
+	<div class="container bs-docs-container">
+		<div class="row">
+
+			<div class="col-md-3">
+          		<div class="well" role="complementary">
+            		<div class="list-group">
+            			<a ng-repeat="module in moduleList" href="#{{module.code}}" class="list-group-item ng-cloak" ng-click="selectModule(module.code)" ng-class="{true:'active',false:''}[module.checked]">{{module.name}}</a>
+			            <!-- <a href="#about" class="list-group-item active" ng-click="selectModule('about')">概况</a>
+			            <a href="#keyword" class="list-group-item" ng-click="selectModule('keyword')">关键字</a>
+			            <a href="#text" class="list-group-item" ng-click="selectModule('text')">文字</a>
+			            <a href="#image" class="list-group-item" ng-click="selectModule('image')">图片</a>
+			            <a href="#voice" class="list-group-item">声音</a>
+			            <a href="#user" class="list-group-item">用户</a>
+			            <a href="#first" class="list-group-item">first</a>
+			            <a href="#second" class="list-group-item">second</a>
+			            <a href="#" class="list-group-item">Link</a>
+			            <a href="#" class="list-group-item">---<span class="ng-cloak">{{a}}</span>---</a> -->
+		          	</div>
+          		</div>
+        	</div>
+
+        	<div class="col-md-9" role="main">
+        		<ol class="breadcrumb">
+				  	<li><a href="#">Home</a></li>
+				  	<li><a href="#">Library</a></li>
+				  	<li class="active">Data</li>
+				</ol>
+				<div class="box">
+					<div id="module-content" class="box-content" ng-view>
+						
+					</div>
+				</div>
+        			
+        	</div>
+
+		</div>
+	</div>
+
+ 
+
+    <script type="text/javascript" src="../vendor/jquery/jquery-1.8.3.min.js"></script>
+	<script type="text/javascript" src="../vendor/bootstrap-3.0.3/js/bootstrap.js"></script>
+	<script type="text/javascript" src="../vendor/angular/angular-1.2.4.min.js"></script>
+
+	<script type="text/javascript" src="../vendor/angular/angular-route.min.js"></script>
+  	<script type="text/javascript" src="../vendor/angular/angular-lazyload.min.js"></script>
+	<script type="text/javascript" src="../vendor/seajs/sea2.0.js"></script>
+	<script type="text/javascript" src="../vendor/jquery/jquery-pagination.js"></script>
+	<script type="text/javascript">
+
+
+
+	$(function(){
+		//var root = window['Root'] = '/weixin/';
+		var root = window['Root'] = 'http://test.majinhui.com/weixin_new/';
+		//var root = window['Root']= '/xampp/majinhui/weixin/';
+		seajs.config({
+			base:root,
+			charset:'utf-8'
+		});
+		
+    seajs.use(['admin/mainApp'],function(mainApp){
+      angular.bootstrap(document,['mainApp']);
+    });
+		  
+
+	});
+
+	</script>
+</body>
+</html>

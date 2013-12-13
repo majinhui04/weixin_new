@@ -1,0 +1,29 @@
+<!-- test -->
+<div class="weixin-container" id="about" >
+	<form class="form-horizontal" role="form" ng-submit="save()">
+		<p>{{editForm.$valid}}</p>
+		<div class="form-group" name="editForm">
+			<label  class="col-sm-2 control-label">
+				作者
+			</label>
+			<div class="col-sm-10">
+				<input class="form-control" required>
+			</div>
+		</div>
+		<div class="form-group">
+			<label class="col-sm-2 control-label">
+				关注后回复
+			</label>
+			<div class="col-sm-10">
+				<textarea class="form-control" rows="5" required></textarea>
+			</div>
+		</div>
+		
+		<div class="form-group">
+			<div class="col-sm-offset-2 col-sm-10">
+				<input type="submit" class="btn btn-default" value="保存" ng-disabled="editForm.$valid">
+			</div>
+		</div>
+	</form>
+</div>
+	

@@ -1,0 +1,110 @@
+<!-- test -->
+<div class="weixin-container" id="text" >
+	{{name}},{{editForm.$valid}},{{editForm.$invalid}}
+	<ul class="nav nav-tabs" id="myTab">
+			<li class="active"><a href="#textList" data-toggle="tab">列表</a></li>
+			<li><a href="#textEdit" data-toggle="tab">编辑</a></li>
+	</ul>
+
+	<div class="tab-content">
+		<div class="tab-pane active" id="textList">
+			<p>
+				
+				<button class="btn btn-success">
+					<i class="glyphicon glyphicon-plus">
+					</i>
+					添加
+				</button>
+			</p>
+			<table class="table table-striped table-bordered table-condensed table-hover">
+			<thead>
+				<tr>
+					<th class="tbl-index">
+						序号
+					</th>
+					<th class="tbl-text-content">
+						内容
+					</th>
+					<th class="tbl-text-msgtype">
+						类型
+					</th>
+					<th class="tbl-text-updatetime">
+						时间
+					</th>
+					<th class="tbl-handle">
+						操作
+					</th>
+				</tr>
+			</thead>
+			<tbody>
+				<tr>
+					<td class="tbl-index">
+						1
+					</td>
+					<td class="tbl-text-content">
+						看电视了分手礼服
+					</td>
+					<td class="tbl-text-msgtype">
+						哈哈
+					</td>
+					<td class="tbl-text-updatetime">
+						2013-12-09
+					</td>
+					
+					<td class="tbl-handle">
+						<button class="btn btn-primary">
+							<i class="glyphicon glyphicon-edit">
+							</i>
+							编辑
+						</button>
+						<button class="btn btn-danger btn-book-delete">
+							<i class="glyphicon glyphicon-trash">
+							</i>
+							删除
+						</button>
+					</td>
+				</tr>
+				
+			</tbody>
+			<tfoot>
+				
+
+			</tfoot>
+		</table>
+
+		</div>
+		<div class="tab-pane" id="textEdit">
+			<form class="form-horizontal" role="form" ng-submit="save()" name="editForm">
+				<div class="form-group">
+					<label for="inputEmail3" class="col-sm-2 control-label">
+						类型
+					</label>
+					<div class="col-sm-10">
+						<select class="form-control" required>
+							<option value="">请选择</option>
+							<option value="笑话">笑话</option>
+							<option value="糗事">糗事</option>
+							</select>
+					</div>
+				</div>
+				<div class="form-group">
+					<label for="inputPassword3" class="col-sm-2 control-label">
+						内容
+					</label>
+					<div class="col-sm-10">
+						<textarea class="form-control" rows="5" required ng-model="xxx"></textarea>
+					</div>
+				</div>
+				
+				<div class="form-group">
+					<div class="col-sm-offset-2 col-sm-10">
+						<input type="submit" class="btn btn-default" value="保存" ng-disabled="editForm.$invalid">
+					</div>
+				</div>
+			</form>
+
+		</div>
+
+	</div>
+</div>
+	

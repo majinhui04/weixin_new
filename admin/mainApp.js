@@ -165,6 +165,13 @@
 	                    
 	                };
 	            },
+	            bindCheckAll:function(){
+	            	$('#checkAll').bind('click',function(){
+	            		var $this = $(this),checked = $this.prop('checked');
+
+	            		$('.chk').prop('checked',checked);
+	            	});
+	            },
 	            getSelectedCheckbox:function(cls){
 	                var ids='',frag = [];
 

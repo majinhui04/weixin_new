@@ -124,6 +124,7 @@ class db_sqlite{
 
 }
 
+/*Actions*/
 class Actions{
 	function _count($sql){
 		sqlite_logger(' count sql '.$sql);
@@ -207,6 +208,28 @@ class Actions{
 
 	  	return true;
 	}
+	function _bulkdelete($sql){
+
+		sqlite_logger(' bulkdelete sql '.$sql);
+
+		try{
+	  		$db = new db_sqlite();
+			$conn = $db->connect_sqlite();
+			
+			$db->exec_sqlite($conn,$sql);
+			$db->commit_sqlite($conn);
+			
+			$db->close_sqlite($conn);
+			$db = null;
+			
+		}
+		catch(Exception $e){
+
+			return false;
+		}
+
+	  	return true;
+	}
 
 	function _create($sql,$table){
 		sqlite_logger(' create sql '.$sql);
@@ -244,10 +267,33 @@ class Dao{
 		
 	}
 	function getDeleteParams(){
-		
+		$record = json_decode('{}');
+
+		$id = $_GET['id'];
+	  	$record->id = $id;
+	  	
+	  	if( empty($id) ){
+	  		$record = json_decode('{"code":500}');
+	  		$record->msg = 'id miss';
+	  	}
+	  	return $record;
 	}
 	function getCreateParams(){
 		
+	}
+	//获取批量删除ids
+	function getBulkDeleteParams(){
+		$record = json_decode('{}');
+
+		$ids = $_GET['ids'];
+	  	$record->ids = $ids;
+	  	
+	  	if( empty($ids) ){
+	  		$record = json_decode('{"code":500}');
+	  		$record->msg = 'ids miss';
+	  	}
+	  	return $record;
+
 	}
 	function ajax_list(){
 		$ret = json_decode('{"code":0,"msg":"success"}');
@@ -303,11 +349,25 @@ class Dao{
 			return '{"code":500,"msg":"delete 好像出错了"}';
 		}
 	}
+	function ajax_bulkdelete(){
+		$record = $this->getBulkDeleteParams();
+		if($record->code){
+			return json_encode($record);
+		}
+		$ids = $record->ids;
+		$result = $this->_bulkdelete($ids);
+		if($result){
+			return '{"code":200,"msg":"success"}';
+		}else{
+			return '{"code":500,"msg":"bulkdelete 好像出错了"}';
+		}
+	}
+	//待改进 $condition
 	function _count($opts){
 		$table = $this->table;
 		$result = null;
 		$condition = ' where 1=1 ';
-		if( !empty($opts->msgtype) ){
+		if( !empty($opts->msgtype) and ($table == 'image' or $table == 'text') ){
 			$msgtype = $opts->msgtype;
 			$condition = $condition." and msgtype='$msgtype' ";
 		}
@@ -326,13 +386,14 @@ class Dao{
 		return $result;
 
 	}
+	//待改进 $condition
 	function _list($opts){
 	
 		$table = $this->table;
 	
 		$array = null;
 		$condition = ' where 1=1 ';
-		if( !empty($opts->msgtype) ){
+		if( !empty($opts->msgtype) and ($table == 'image' or $table == 'text') ){
 			$msgtype = $opts->msgtype;
 			$condition = $condition." and msgtype='$msgtype' ";
 		}
@@ -419,6 +480,23 @@ class Dao{
 		}
 
 	}
+	//$ids string 1,2,3
+	function _bulkdelete($ids){
+		$table = $this->table;
+
+		$sql = "delete from  $table  where id  in ($ids) ";
+  		try{
+  			
+  			$actions = new Actions();
+			$actions->_bulkdelete($sql);
+			return true;
+		}
+		catch(Exception $e){
+
+			return false;
+		}
+
+	}
 	function _create($record){
 		$id = null;
 		$table = $this->table;
@@ -450,6 +528,18 @@ class Dao{
 		return $id;
 	}
 
+}
+
+function getRequest($name=''){
+	$result = '';
+
+	if($_POST[$name]){
+		$result = $_POST[$name];
+	}else if($_GET[$name]){
+		$result = $_GET[$name];
+	}
+
+	return $result;
 }
 function error_logger($content){
     file_put_contents("error_log.html",date('Y-m-d H:i:s ').$content.'<br>',FILE_APPEND);

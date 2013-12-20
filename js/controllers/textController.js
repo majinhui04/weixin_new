@@ -14,20 +14,20 @@ define(function (require, exports, module) {
     ['$scope','$routeParams', '$location','$timeout' ,'$q','Message','textService','ScreenMask','msgtypeService','Util',function($scope,$routeParams, $location,$timeout,$q,Message,textService,ScreenMask,msgtypeService,Util){
 	         
           	$scope.saveText = '保存';
-	        $scope.pagination = {
-	        	page:1,
-	            pagesize:10
-	        };
+  	        $scope.pagination = {
+  	        	  page:1,
+  	            pagesize:10
+  	        };
           	$scope.searchData = {};
           	$scope.search = $scope.pagination.click = function(page){
-            	var data = {},page = page || $scope.pagination.page || 1;
-              	var searchData = $scope.searchData || {};
+            	var data = {},pagination = $scope.pagination,page = page || pagination.page || 1;
+              var searchData = $scope.searchData || {};
 
             	$scope.pagination.page = page;
               	
               	data = {
                   	_page:page,
-                  	_pagesize:10,
+                  	_pagesize:pagination.pagesize,
                   	msgtype:searchData.msgtype || ''
               	};
               	ScreenMask.show('.datalist-wrapper');
@@ -58,6 +58,12 @@ define(function (require, exports, module) {
           $scope.searchAll=function(){
               $scope.searchData = {};
               $scope.search();
+          };
+          $scope.toBulkDeleteView = function(){
+              if( confirm('你确定不要我们了吗？') ){
+                  $scope.bulkdelete();
+                  
+              }
           };
           $scope.toDeleteView = function(record){
               $scope.record = record;
@@ -153,6 +159,28 @@ define(function (require, exports, module) {
                   
               });
           };
+          $scope.bulkdelete = function(){
+              var ids = Util.getSelectedCheckbox('.chk');
+              
+              console.log('ids',ids.join(','))
+              if(ids.length==0){
+                  Message.show('请选择几个先','warning');
+                  return;
+              }
+              
+              $scope.pending = true;
+              textService.bulkdelete({ids:ids.join(','),_action:'通通干掉了'}).then(function(result){
+                  $scope.search();
+
+              },function(result){
+                  Message.show(result.msg);
+
+              }).finally(function(){
+                  $scope.pending = false;
+                  
+                  
+              });
+          };
           $scope.validate = function(data){
               var data = data || {};
 
@@ -161,6 +189,10 @@ define(function (require, exports, module) {
 
           
           init();
+          bindUI();
+          function bindUI(){
+              Util.bindCheckAll();
+          }
           function init(){
 	      		
 

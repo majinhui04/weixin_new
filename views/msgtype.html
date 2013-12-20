@@ -22,7 +22,7 @@
 					<thead>
 						<tr>
 							<th class="tbl-index">
-								序号
+								<input type="checkbox" id="checkAll" >
 							</th>
 							<th class="tbl-msgtype-name">
 								名称
@@ -33,9 +33,14 @@
 						</tr>
 					</thead>
 					<tbody>
+						<tr>
+							<td colspan="3" ng-show="dataList.length == 0" >
+								<div class="no-records ng-cloak" ng-show="dataList.length == 0"> <strong>暂无数据</strong> </div>
+							</td>
+						</tr>
 						<tr ng-repeat="item in dataList">
 							<td class="tbl-index">
-								{{$index+1}},id={{item.id}}
+								<input type="checkbox"  class="chk" name="chk" value="{{item.id}}" data-uuid="{{item.id}}">
 							</td>
 							<td class="tbl-msgtype-name">
 								<div class="weixin-padding5">
@@ -59,9 +64,21 @@
 						</tr>
 						
 					</tbody>
-					<tfoot class="ng-cloak alert" ng-show="dataList.length == 0">
+					<tfoot >
 						<tr>
-							<td colspan="5"><div class="no-records "> <strong>暂无数据</strong> </div> </td>
+							<td colspan="3" >
+								<div>
+									<button class="btn btn-danger" ng-disabled="pending" ng-click="toBulkDeleteView()">
+										<i class="glyphicon glyphicon-trash">
+										</i>
+										删除选中
+									</button>
+									<button class="btn btn-default pull-right" >
+										{{pagination.pagesize}}条/页 总数:{{pagination.recordCount}}
+										
+									</button>
+								</div>
+							</td>
 						</tr>
 					</tfoot>
 				</table>

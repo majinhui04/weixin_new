@@ -24,15 +24,16 @@ define(function (require, exports, module) {
           $scope.keyList = [];
           $scope.searchData = {};
           $scope.search = $scope.pagination.click = function(page){
-              var data = {},page = page || $scope.pagination.page || 1;
+              var data = {},pagination = $scope.pagination,page = page || pagination.page || 1;
 
               var searchData = $scope.searchData || {};
             
               ScreenMask.show('.datalist-wrapper');
               data = {
                   _page:page,
-                  _pagesize:10,
-                  msgtype:searchData.msgtype || ''
+                  _pagesize:pagination.pagesize,
+                  msgtype:searchData.msgtype || '',
+                  key:searchData.key || ''
               };
 
               keywordService.list(data).then(
@@ -66,6 +67,12 @@ define(function (require, exports, module) {
           $scope.searchAll=function(){
               $scope.searchData = {};
               $scope.search();
+          };
+          $scope.toBulkDeleteView = function(){
+              if( confirm('你确定不要我们了吗？') ){
+                  $scope.bulkdelete();
+                  
+              }
           };
           $scope.toDeleteView = function(record){
               $scope.record = record;
@@ -183,6 +190,28 @@ define(function (require, exports, module) {
                   
               });
           };
+          $scope.bulkdelete = function(){
+              var ids = Util.getSelectedCheckbox('.chk');
+              
+              console.log('ids',ids.join(','))
+              if(ids.length==0){
+                  Message.show('请选择几个先','warning');
+                  return;
+              }
+              
+              $scope.pending = true;
+              keywordService.bulkdelete({ids:ids.join(','),_action:'通通干掉了'}).then(function(result){
+                  $scope.search();
+
+              },function(result){
+                  Message.show(result.msg);
+
+              }).finally(function(){
+                  $scope.pending = false;
+                  
+                  
+              });
+          };
           $scope.validate = function(data){
               var data = data || {};
 
@@ -219,7 +248,7 @@ define(function (require, exports, module) {
           };
 
           init();
-
+          bindUI();
           function formatMsgtype(msgtypes){
               var result = [],msgtypes = msgtypes || '',msgtypeList = $scope.msgtypeList,record_msgtypeList;
 
@@ -276,22 +305,11 @@ define(function (require, exports, module) {
 
               return keyList;
           }
-          //bindUI();
-          function bindUI(){
-              $('#keyInput').keyup(function(event) {
-                  var keyCode = event.keyCode,value;
+          
 
-                  if(13 == keyCode ){
-                      value = $('#keyInput').val();
-                      console.log(value,event)
-                      $scope.$apply(function(){
-                        $scope.keyList.push(value);
-                        $('#keyInput').val('');
-                      })
-                        
-                  }
-                  
-              });
+           
+          function bindUI(){
+              Util.bindCheckAll();
           }
           function init(){
             

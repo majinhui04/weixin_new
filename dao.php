@@ -280,6 +280,7 @@ class Dao_keyword extends Dao{
 	  	$params->_page = $_GET['_page'];
 	  	$params->_pagesize = $_GET['_pagesize'];
 	  	$params->key = $_GET['key'];
+	  	$params->msgtype = $_GET['msgtype'];
 	  
 
 	  	return $params;
@@ -349,18 +350,21 @@ class Station{
 			'image.update'=>'Dao_image',
 			'image.create'=>'Dao_image',
 			'image.delete'=>'Dao_image',
+			'image.bulkdelete'=>'Dao_image',
 			'image.get'=>'Dao_image',
 
 			'text.list'=>'Dao_text',
 			'text.update'=>'Dao_text',
 			'text.create'=>'Dao_text',
 			'text.delete'=>'Dao_text',
+			'text.bulkdelete'=>'Dao_text',
 			'text.get'=>'Dao_text',
 
 			'msgtype.list'=>'Dao_msgtype',
 			'msgtype.update'=>'Dao_msgtype',
 			'msgtype.create'=>'Dao_msgtype',
 			'msgtype.delete'=>'Dao_msgtype',
+			'msgtype.bulkdelete'=>'Dao_msgtype',
 			'msgtype.get'=>'Dao_msgtype',
 
 			'about.list'=>'Dao_about',
@@ -373,6 +377,7 @@ class Station{
 			'keyword.update'=>'Dao_keyword',
 			'keyword.create'=>'Dao_keyword',
 			'keyword.delete'=>'Dao_keyword',
+			'keyword.bulkdelete'=>'Dao_keyword',
 			'keyword.get'=>'Dao_keyword',
 
 
@@ -497,17 +502,7 @@ $station = new Station();
 $station->handle();
 
 
-function getRequest($name=''){
-	$result = '';
 
-	if($_POST[$name]){
-		$result = $_POST[$name];
-	}else if($_GET[$name]){
-		$result = $_GET[$name];
-	}
-
-	return $result;
-}
 
 
 function test0(){

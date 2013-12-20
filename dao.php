@@ -267,6 +267,79 @@ class Dao_about extends Dao{
 
 }
 
+/*keyword*/
+class Dao_keyword extends Dao{
+	
+	function Dao_keyword(){
+		
+		$this->table = 'keyword';
+		$this->_pagesize = 10;
+	}
+	function getListParams(){
+		$params = json_decode('{}');
+	  	$params->_page = $_GET['_page'];
+	  	$params->_pagesize = $_GET['_pagesize'];
+	  	$params->key = $_GET['key'];
+	  
+
+	  	return $params;
+	}
+	function getUpdateParams(){
+		$record = json_decode('{}');
+		
+		$reply = getRequest('reply');
+		$msgtypes = getRequest('msgtypes');
+		$keys = getRequest('keys');
+		$name = getRequest('name');
+		$id = getRequest('id');
+		
+	  	$record->name =  $name;
+	  	$record->reply =  $reply;
+	  	$record->keys =  $keys;
+	  	$record->msgtypes =  $msgtypes;
+	  	$record->id = $id;
+	  	
+	  	if( empty($id) or empty($name) or empty($keys)  ){
+	  		$record = json_decode('{"code":500}');
+	  		$record->msg = 'update 参数不完整';
+	  	}
+	  	return $record;
+	}
+	function getDeleteParams(){
+		$record = json_decode('{}');
+
+		$id = $_GET['id'];
+	  	$record->id = $id;
+	  	
+	  	if( empty($id) ){
+	  		$record = json_decode('{"code":500}');
+	  		$record->msg = 'id miss';
+	  	}
+	  	return $record;
+	}
+	function getCreateParams(){
+		$record = json_decode('{}');
+
+		$reply = getRequest('reply');
+		$msgtypes = getRequest('msgtypes');
+		$keys = getRequest('keys');
+		$name = getRequest('name');
+ 
+	  	$record->name =  $name;
+	  	$record->reply =  $reply;
+	  	$record->keys =  $keys;
+	  	$record->msgtypes =  $msgtypes;
+	  	if( empty($name) or empty($keys) or (empty($reply) and empty($msgtypes)) ){
+	  		$record = json_decode('{"code":500}');
+	  		$record->msg = 'create 参数不完整';
+	  	}
+	  		
+	  	return $record;
+	}
+	
+
+}
+
 /* 中转站 */
 class Station{
 	function handle(){
@@ -295,6 +368,12 @@ class Station{
 			'about.create'=>'Dao_about',
 			'about.delete'=>'Dao_about',
 			'about.get'=>'Dao_about',
+
+			'keyword.list'=>'Dao_keyword',
+			'keyword.update'=>'Dao_keyword',
+			'keyword.create'=>'Dao_keyword',
+			'keyword.delete'=>'Dao_keyword',
+			'keyword.get'=>'Dao_keyword',
 
 
 		);

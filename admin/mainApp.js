@@ -591,6 +591,11 @@
         		controllerUrl: 'js/controllers/msgtypeController.js',
         		templateUrl: root+'views/msgtype.html'
 	        });
+	         $routeProvider.when('/keyword', {
+	        	controller: 'keywordController',
+        		controllerUrl: 'js/controllers/keywordController.js',
+        		templateUrl: root+'views/keyword.html'
+	        });
     		$routeProvider.when('/text', {
     			controller: 'textController',
         		controllerUrl: 'js/controllers/textController.js',

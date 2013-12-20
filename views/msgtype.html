@@ -1,5 +1,5 @@
 <!-- test -->
-<div class="weixin-container" id="text" >
+<div class="weixin-container" id="msgtype-container" >
 	
 	<ul class="nav nav-tabs" id="myTab">
 			<li class="active"><a href="#dataList" data-toggle="tab">列表</a></li>
@@ -8,26 +8,6 @@
 
 	<div class="tab-content">
 		<div class="tab-pane active" id="dataList">
-			<form class="form-inline search-form" role="form" >
-				<div class="form-group">
-				    <select class="form-control "  ng-model="searchData.msgtype" ng-options="option.id as option.name for option in msgtypeList">
-						<option value="">全部</option>
-					</select>
-				</div>
-				<div class="form-group">
-			  		<button type="button"  class="btn btn-default search-btn" ng-click="search()">
-			  			<span class="glyphicon glyphicon-search"></span>
-			  			查询
-			  		</button>
-				</div>
-				<div class="form-group">
-			  		<button type="button"  class="btn btn-default search-btn" ng-click="searchAll()">
-			  		
-			  			全部
-			  		</button>
-				</div>
-
-			</form>
 			
 			<p class="align-right">
 				
@@ -44,15 +24,9 @@
 							<th class="tbl-index">
 								序号
 							</th>
-							<th class="tbl-text-content">
-								内容
+							<th class="tbl-msgtype-name">
+								名称
 							</th>
-							
-							<th class="tbl-text-msgtype">
-								类型
-							</th>
-							
-							
 							<th class="tbl-handle">
 								操作
 							</th>
@@ -63,17 +37,12 @@
 							<td class="tbl-index">
 								{{$index+1}},id={{item.id}}
 							</td>
-							<td class="tbl-text-content">
+							<td class="tbl-msgtype-name">
 								<div class="weixin-padding5">
-									{{item.content}}
+									{{item.name}}
 								</div>
 							</td>
-							
-							<td class="tbl-text-msgtype">
-								{{item._msgtype}}
-							</td>
-							
-							
+						
 							
 							<td class="tbl-handle">
 								<button class="btn btn-primary" ng-click="toEditView(item)">
@@ -92,7 +61,7 @@
 					</tbody>
 					<tfoot class="ng-cloak alert" ng-show="dataList.length == 0">
 						<tr>
-							<td colspan="5"><div class="no-records bg-warning"> <strong>暂无数据</strong> </div> </td>
+							<td colspan="5"><div class="no-records "> <strong>暂无数据</strong> </div> </td>
 						</tr>
 					</tfoot>
 				</table>
@@ -105,27 +74,17 @@
 			<form class="form-horizontal" role="form" ng-submit="save()" name="editForm">
 				<div class="form-group">
 					<label  class="col-sm-2 control-label">
-						类型
+						名称
 					</label>
 					<div class="col-sm-10">
-						<select class="form-control" required ng-options="option.id as option.name for option in msgtypeList" ng-model="formData.msgtype">
-							<option value="">请选择</option>
+						<input class="form-control" required ng-model="formData.name">
 							
-						</select>
-					</div>
-				</div>
-				<div class="form-group">
-					<label  class="col-sm-2 control-label">
-						内容
-					</label>
-					<div class="col-sm-10">
-						<textarea class="form-control" rows="5" required ng-model="formData.content"></textarea>
 					</div>
 				</div>
 				
 				<div class="form-group">
 					<div class="col-sm-offset-2 col-sm-10">
-						<input type="submit" class="btn btn-primary" value="保存" ng-disabled="editForm.$invalid">
+						<input type="submit" class="btn btn-primary" value="{{saveText}}" ng-disabled="editForm.$invalid || pending">
 					</div>
 				</div>
 			</form>

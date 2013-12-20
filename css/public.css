@@ -99,3 +99,17 @@
 	position: relative;
 	min-height: 60px;
 }
+
+.search-form{
+	margin-bottom: 7px;
+}
+.search-btn{
+	margin-left: 10px;
+}
+.align-right{
+	text-align: right;
+}
+#weixin-navbar{
+	width: 250px;
+	position: fixed;
+}

@@ -123,9 +123,9 @@ margin-bottom: 15px;
 		<div class="row">
 
 			<div class="col-md-3">
-          		<div class="well" role="complementary">
+          		<div  role="complementary" id="weixin-navbar">
             		<div class="list-group">
-            			<a ng-repeat="module in moduleList" href="#{{module.code}}" class="list-group-item ng-cloak" ng-click="selectModule(module.code)" ng-class="{true:'active',false:''}[module.checked]">{{module.name}}</a>
+            			<a ng-repeat="module in moduleList" href="#/{{module.code}}" class="list-group-item ng-cloak" ng-click="selectModule(module.code)" >{{module.name}}</a>
 			            <!-- <a href="#about" class="list-group-item active" ng-click="selectModule('about')">概况</a>
 			            <a href="#keyword" class="list-group-item" ng-click="selectModule('keyword')">关键字</a>
 			            <a href="#text" class="list-group-item" ng-click="selectModule('text')">文字</a>
@@ -143,8 +143,8 @@ margin-bottom: 15px;
         	<div class="col-md-9" role="main">
         		<ol class="breadcrumb">
 				  	<li><a href="#">Home</a></li>
-				  	<li><a href="#">Library</a></li>
-				  	<li class="active">Data</li>
+				  	
+				  	<li class="active" id="current-place"></li>
 				</ol>
 				<div class="box">
 					<div id="module-content" class="box-content" ng-view>
@@ -172,9 +172,11 @@ margin-bottom: 15px;
 
 
 	$(function(){
+		var href=location.href;
+
 		//var root = window['Root'] = '/weixin/';
-		var root = window['Root'] = 'http://test.majinhui.com/weixin_new/';
-		//var root = window['Root']= '/xampp/majinhui/weixin/';
+		//var root = window['Root'] = 'http://test.majinhui.com/weixin_new/';
+		var root = window['Root']= href.substring(0,href.indexOf('admin'));
 		seajs.config({
 			base:root,
 			charset:'utf-8'

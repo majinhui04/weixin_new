@@ -11,33 +11,46 @@ define(function (require, exports, module) {
 	var app = require('admin/mainApp');
 	
 	app.register.controller('imageController', 
-    ['$scope','$routeParams', '$location','$timeout' ,'$q','Message','imageService','ScreenMask',
-	    function($scope,$routeParams, $location,$timeout,$q,Message,imageService,ScreenMask){
+    ['$scope','$routeParams', '$location','$timeout' ,'$q','Message','imageService','ScreenMask','msgtypeService','Util',
+	    function($scope,$routeParams, $location,$timeout,$q,Message,imageService,ScreenMask,msgtypeService,Util){
 	         
-          $scope.name = "I'm the imageController!";
+         
           $scope.saveText = '保存';
         	$scope.pagination = {
-              pagesize:10
-          };
+              page:1,
+              pagesize:10,
 
+          };
+          $scope.searchData = {};
           $scope.search = $scope.pagination.click = function(page){
-              var data = {},page = page || 1;
+              var data = {},page = page || $scope.pagination.page || 1;
+
+              var searchData = $scope.searchData || {};
             
               ScreenMask.show('.datalist-wrapper');
               data = {
                   _page:page,
-                  _pagesize:10
+                  _pagesize:10,
+                  msgtype:searchData.msgtype || ''
               };
 
               imageService.list(data).then(
                 function(result){
-                  var list = result.data || [],total = result.total;
+                  var list = result.data || [],total = result.total,item,msgtypeList = $scope.msgtypeList,msgtype;
                   
-                  $scope.pagination.recordCount = total;
-                  console.log('dataList',result);
-                  $scope.dataList = list;
+
+                    $scope.pagination.recordCount = total;
+                    console.log('dataList',result);
+
+                    for (var i = list.length - 1; i >= 0; i--) {
+                      item = list[i];
+                      msgtype = Util.getObjInArray(msgtypeList,'id',item.msgtype);
+                      item._msgtype = msgtype?msgtype.name:'不存在';
+                    };
+                    $scope.dataList = list;
 
                 },function(result){
+                  Message.show(result.msg,'error');
                   console.warn('error ',result);
                 }
               ).finally(function(){
@@ -45,6 +58,10 @@ define(function (require, exports, module) {
               });
             
            
+          };
+          $scope.searchAll=function(){
+              $scope.searchData = {};
+              $scope.search();
           };
           $scope.toDeleteView = function(record){
               $scope.record = record;
@@ -80,6 +97,7 @@ define(function (require, exports, module) {
               console.log('save data ',data);
               $scope.pending = true;
               $scope.saveText = '正在保存...';
+              data._action = actionName;
               if('update' === actionName){
                   $scope.update(data);
 
@@ -111,7 +129,7 @@ define(function (require, exports, module) {
               imageService.update(record).then(function(result){
                   console.log('update ok',result);
                   $('#myTab a:first').tab('show');
-
+                  $scope.search();
               },function(){
                   Message.show('update error');
 
@@ -144,7 +162,23 @@ define(function (require, exports, module) {
               return true;
           };
 
-          $scope.search();
+          init();
+          function init(){
+            
+
+            msgtypeService.list().then(function(result){
+                  var list = result.data || [];
+                
+                  $scope.msgtypeList = list;
+                  $scope.search();
+                }
+                  ,function(result){
+                  Message.show(result.msg,'error');
+                    console.warn('error ',result);
+                }
+              );
+
+            }
        		
 	    }
     ]

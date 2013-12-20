@@ -1,6 +1,4 @@
 
-
-
 	define(function (require, exports, module) {
 		//var root = window['Root'] = 'http://test.majinhui.com/weixin/';
 		var root = window['Root'];
@@ -60,7 +58,194 @@
 	        } 
 	            
 	    };
-	    
+	    /* 公共方法 */
+	    app.factory('Util', function () {
+	        
+	        return {
+	            delObjInArray : function(list,target,param){
+	                var item;
+
+	                for (var i = list.length - 1; i >= 0; i--) {
+	                    item = list[i];
+	                    if(target[param] == item[param]){
+	                        list.splice(i,1);
+	                        break;
+	                    };
+	                };
+	            },
+	            updateObjInArray : function(list,target,param){
+	                var item,ret=false;
+
+	                for (var i = list.length - 1; i >= 0; i--) {
+	                    item = list[i];
+	                    if(target[param] == item[param]){
+	                        list[i] = target;
+	                        ret = true;
+	                        break;
+	                    };
+	                };
+	                if(!ret){
+	                    console.warn('target:',target,' not find');
+	                }
+	            },
+	            validateData:function(obj){
+	                
+	                if(this.isEmptyObj(obj)){
+	                    return false;
+	                }
+	                for( var param in obj){
+	                    if(!obj[param]){
+	                        console.warn('数据不完整！')
+	                        return false;
+	                    }
+	                }
+
+	                return true;
+	            },
+	            isEmptyObj:function(obj){
+	                
+	                for( var param in obj){
+	                    return false;
+	                }
+	                return true;
+	            },
+	            cloneArray:function(arr){
+	                var arr = arr || [];
+	                return arr.slice(0);
+	            },
+	            getObjInArray:function(list,param,value){
+	                var result=null,item,list = list || [];
+
+	                for (var i = list.length - 1; i >= 0; i--) {
+	                    item = list[i];
+	                    if( item[param] == value ){
+	                        result = item;
+	                        break;
+	                    }
+	                };
+	               
+	                return result;
+	            },
+	     		
+	            arrayToMap:function(arr,prop){
+	                var arr = arr || [],ret={},item,key;
+
+	                for (var i = arr.length - 1; i >= 0; i--) {
+	                    item = arr[i];
+	                    key = item[prop];
+	                    ret[key] = item;
+	                };
+
+	                return ret;
+	            },
+	            isInArray:function(value,arr){
+	                var arr=arr || [],value = value+'';
+
+	                if(angular.isString(arr)){
+	                    arr = arr.split(',');
+	                }
+	                for (var i = arr.length - 1; i >= 0; i--) {
+	                    if(arr[i] == value){
+	                        return true;
+	                    }
+	                };
+	                return false;
+	            },
+	            //设置数组里的对象 _check:boolean
+	            checkList:function(list,str){
+	                var list = list || [],item,str = str || '',arr = str.split(',');
+	                
+	                for (var i = list.length - 1; i >= 0; i--) {
+	                    item = list[i];
+	                    if(this.isInArray(item.id,arr)){
+	                        item._checked = true;
+	                    }else{
+	                        item._checked = false;
+	                    }
+	                    
+	                };
+	            },
+	            getSelectedCheckbox:function(cls){
+	                var ids='',frag = [];
+
+	                jQuery(cls+'[type="checkbox"]').each(function(i,item){
+	                    var uuid = item.value;
+	                    if(item.checked && uuid){
+	                        frag.push(uuid);
+	                    }
+	                    
+	                });
+	                
+	                return frag;
+	            },
+	            showModal:function(id){
+	                $(id).modal({
+	                    show:true,
+	                    backdrop:'static'
+	                });
+	            },
+	            hideModal:function(id){
+	                $(id).modal('hide');
+	            },
+	            getDeletedArray:function(oldArr,newArr){
+	                var oldArr = oldArr || [],newArr = newArr || [],ret = [],obj={};
+
+	                for (var i = newArr.length - 1; i >= 0; i--) {
+	                    obj[newArr[i]] = true;
+	                };
+
+	                for (var i = oldArr.length - 1; i >= 0; i--) {
+	                    if(!obj[oldArr[i]]){
+	                        ret.push(oldArr[i]);
+	                    }
+	                };
+
+	                return ret;
+	            },
+	            getAddedArray:function(oldArr,newArr){
+	                var oldArr = oldArr || [],newArr = newArr || [],ret = [],obj={};
+
+	                for (var i = oldArr.length - 1; i >= 0; i--) {
+	                    obj[oldArr[i]] = true;
+	                };
+
+	                for (var i = newArr.length - 1; i >= 0; i--) {
+	                    if(!obj[newArr[i]]){
+	                        ret.push(newArr[i]);
+	                    }
+	                };
+
+	                return ret;
+	            },
+	            getPropArray:function(list,prop){
+	                var list = list || [],ret=[];
+
+	                for(var i=0;i<list.length;i++){
+	                    ret.push(list[i][prop]);
+	                };
+
+	                return ret;
+	            },
+	            scrollTop:function(){
+	                var target = arguments[0],len=arguments.length,value = 0;
+
+	                if(len == 1){
+	                    value = arguments[0];
+	                    target = jQuery('.section-content');
+	                }
+	                if(len == 2){
+	                    value = arguments[1];
+	                }
+	                
+	                target.scrollTop(value);
+
+	            },
+	            test:function(){
+	                console.log(this);
+	            }
+	        };
+	            
+	    });
 		/* 全屏遮罩
 	    * 
 	    * show：打开遮罩
@@ -101,7 +286,7 @@
 	                    //scope.pagination.click(3);
 	                    //console.log('watch pagination recordCount ',value,ul.attr('data-pagination'));
 	                    value = value ? value : 0;
-	                    console.log('record ',value);
+	                    console.log('record ',value,pageModel.page);
 	                    panel.pagination(value,{
 	                        current_page:page - 1,
 	                        items_per_page:pageModel.pagesize,
@@ -120,7 +305,7 @@
 		/* 公共ajax */
 	    app.factory('http', ['$http','$q','Message', function ($http,$q,Message) {
 	        var urlHash = {
-	        	'text.create':'dao.php',
+	        	/*'text.create':'dao.php',
 	        	'text.update':'dao.php',
 	        	'text.delete':'dao.php',
 	        	'text.list':'dao.php',
@@ -130,7 +315,7 @@
 	        	'image.update':'dao.php',
 	        	'image.delete':'dao.php',
 	        	'image.list':'dao.php',
-	        	'image.bulkdelete':'dao.php'
+	        	'image.bulkdelete':'dao.php'*/
 	        };
 	        var root = window['Root'];
 	        var http = {
@@ -150,7 +335,7 @@
 	                    if(url){
 	                        url = prefix + url;
 	                    }else{
-	                    	url = key;
+	                    	url = prefix+'dao.php';
 	                    }
 	                    
 	                    //url = key;
@@ -189,12 +374,12 @@
 	                        var message,data,str='<!-- 请勿屏蔽广告',index,json_text;
 	                        
 	                        if(angular.isObject(data)){
-	                        	if(data.code == 0){
+	                        	if(data.code == 0 || data.code == 200){
                     				_action && Message.show(_action,'success');
                             		deferred.resolve(data);
 
                     			}else{
-                    				deferred.reject( { message:data.msg } );
+                    				deferred.reject( data );
                     			}
 	                        	
 	                        }else{
@@ -372,6 +557,27 @@
 	        return factory;
 
 	    }]);
+	    /*消息类型*/
+	    app.factory('msgtypeService', ['http','GeneralFactory',function (http,GeneralFactory) {
+	        var factory = new GeneralFactory('msgtype');
+	
+	        return factory;
+
+	    }]);
+	    /*关键字*/
+	    app.factory('keywordService', ['http','GeneralFactory',function (http,GeneralFactory) {
+	        var factory = new GeneralFactory('keyword');
+	
+	        return factory;
+
+	    }]);
+	    /*about*/
+	    app.factory('aboutService', ['http','GeneralFactory',function (http,GeneralFactory) {
+	        var factory = new GeneralFactory('about');
+	
+	        return factory;
+
+	    }]);
 		app.config(function ($routeProvider,$compileProvider, $controllerProvider) {
 	    	var html;
 	      
@@ -379,6 +585,11 @@
 	        	controller: 'aboutController',
         		controllerUrl: 'js/controllers/aboutController.js',
         		templateUrl: root+'views/about.html'
+	        });
+	        $routeProvider.when('/msgtype', {
+	        	controller: 'msgtypeController',
+        		controllerUrl: 'js/controllers/msgtypeController.js',
+        		templateUrl: root+'views/msgtype.html'
 	        });
     		$routeProvider.when('/text', {
     			controller: 'textController',
@@ -417,12 +628,18 @@
 		app.controller('mainCtrl', function($scope, $routeParams,$timeout,$route,$rootScope,ScreenMask){
 			console.log('$route',$route,$rootScope)
         	$scope.a = '我是ng, 也是dojo';
-        	//$rootScope.$on('$routeChangeStart', routeChangeStart);  
+        	$rootScope.$on('$routeChangeStart', routeChangeStart);  
          	//$route.reload();
          	$scope.moduleList = [
          		{
          			name:'概况',
          			code:'about',
+         			tpl:'',
+         			checked:false
+         		},
+         		{
+         			name:'消息类型',
+         			code:'msgtype',
          			tpl:'',
          			checked:false
          		},
@@ -467,18 +684,6 @@
          			code:'user',
          			tpl:'',
          			checked:false
-         		},
-         		{
-         			name:'first',
-         			code:'first',
-         			tpl:'',
-         			checked:false
-         		},
-         		{
-         			name:'second',
-         			code:'second',
-         			tpl:'',
-         			checked:false
          		}
          	];
          	$scope.selectModule = function(code){
@@ -495,15 +700,20 @@
          		//$route.reload();
 
          	}
-         	/*function routeChangeStart(event,route) {  
-		    	
-		        console.log('routeChangeStart',$scope,route);  
-		        console.log($routeParams)
-		        console.log(event)
-		        //$log.log(arguments);  
-		        $scope.selectModule(route.controller);
-		        ScreenMask.show('#module-content');
-		    } */
+         	function routeChangeStart(event,route) {  
+		    	var hash = location.hash,$link ;
+		      	if(hash && $('#weixin-navbar').find('a[href="'+hash+'"]').length>0 ){
+		      		$link = $('#weixin-navbar').find('a[href="'+hash+'"]');
+		      		$link.addClass('active').siblings('a').removeClass('active');
+		      		$('#current-place').html($link.text());
+		      	}else{
+		      		$('#weixin-navbar').find('a').removeClass('active');
+		      		$('#current-place').html('');
+		      	}
+		      	
+		        //$scope.selectModule(route.controller);
+		        //ScreenMask.show('#module-content');
+		    } 
 		    function routeChangeSuccess(event,route) {  
 		    	ScreenMask.hide('#module-content');
 		    }  

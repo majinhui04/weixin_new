@@ -10,48 +10,43 @@
 define(function (require, exports, module) {
 	var app = require('admin/mainApp');
 	
-	app.register.controller('textController', 
-    ['$scope','$routeParams', '$location','$timeout' ,'$q','Message','textService','ScreenMask','msgtypeService','Util',function($scope,$routeParams, $location,$timeout,$q,Message,textService,ScreenMask,msgtypeService,Util){
+	app.register.controller('msgtypeController', 
+    ['$scope','$routeParams', '$location','$timeout' ,'$q','Message','msgtypeService','ScreenMask',
+	    function($scope,$routeParams, $location,$timeout,$q,Message,msgtypeService,ScreenMask){
 	         
-          	$scope.saveText = '保存';
-	        $scope.pagination = {
-	        	page:1,
-	            pagesize:10
-	        };
-          	$scope.searchData = {};
-          	$scope.search = $scope.pagination.click = function(page){
-            	var data = {},page = page || $scope.pagination.page || 1;
-              	var searchData = $scope.searchData || {};
+      
+          $scope.saveText = '保存';
+        	$scope.pagination = {
+              pagesize:10
+          };
+          $scope.searchData = {};
+          $scope.search = $scope.pagination.click = function(page){
+              var data = {},page = page || 1;
 
-            	$scope.pagination.page = page;
-              	
-              	data = {
-                  	_page:page,
-                  	_pagesize:10,
-                  	msgtype:searchData.msgtype || ''
-              	};
-              	ScreenMask.show('.datalist-wrapper');
-              	textService.list(data).then(function(result){
-                	var list = result.data || [],total = result.total,item,msgtypeList = $scope.msgtypeList,msgtype;
+              var searchData = $scope.searchData || {};
+            
+              ScreenMask.show('.datalist-wrapper');
+              data = {
+                  _page:page,
+                  _pagesize:10,
+                  msgtype:searchData.msgtype || ''
+              };
+
+              msgtypeService.list(data).then(
+                function(result){
+                  var list = result.data || [],total = result.total;
                   
+                  $scope.pagination.recordCount = total;
+                  console.log('dataList',result);
+                  $scope.dataList = list;
 
-                  	$scope.pagination.recordCount = total;
-                  	console.log('dataList',result);
-
-                  	for (var i = list.length - 1; i >= 0; i--) {
-                  		item = list[i];
-                  		msgtype = Util.getObjInArray(msgtypeList,'id',item.msgtype);
-                  		item._msgtype = msgtype?msgtype.name:'';
-                  	};
-                  	$scope.dataList = list;
-
-	                },function(result){
-	                	Message.show(result.msg,'error');
-	                  console.warn('error ',result);
-	                }
-	              ).finally(function(){
-	                  ScreenMask.hide('.datalist-wrapper');
-	           	});
+                },function(result){
+                  Message.show(result.msg,'error');
+                  console.warn('error ',result);
+                }
+              ).finally(function(){
+                  ScreenMask.hide('.datalist-wrapper');
+              });
             
            
           };
@@ -104,7 +99,7 @@ define(function (require, exports, module) {
           };
           $scope.create = function(record){
 
-              textService.create(record).then(function(result){
+              msgtypeService.create(record).then(function(result){
                   console.log('create ok',result);
                   $scope.search();
                   $('#myTab a:first').tab('show');
@@ -122,9 +117,8 @@ define(function (require, exports, module) {
 
           $scope.update = function(record){
 
-              textService.update(record).then(function(result){
+              msgtypeService.update(record).then(function(result){
                   console.log('update ok',result);
-                  $scope.search();
                   $('#myTab a:first').tab('show');
 
               },function(){
@@ -141,7 +135,7 @@ define(function (require, exports, module) {
           $scope.delete = function(record){
               record._pending = true;
               
-              textService.delete({id:record.id,_action:'删除成功了'}).then(function(result){
+              msgtypeService.delete({id:record.id,_action:'删除成功了'}).then(function(result){
                   $scope.search();
 
               },function(result){
@@ -159,24 +153,7 @@ define(function (require, exports, module) {
               return true;
           };
 
-          
-          init();
-          function init(){
-	      		
-
-        		msgtypeService.list().then(function(result){
-                	var list = result.data || [];
-                
-                	$scope.msgtypeList = list;
-                	$scope.search();
-                }
-                	,function(result){
-  	            	Message.show(result.msg,'error');
-  	              	console.warn('error ',result);
-  	            }
-            	);
-
-            }
+          $scope.search();
        		
 	    }
     ]

@@ -15,6 +15,15 @@ class Dao_image extends Dao{
 		$this->table = 'image';
 		$this->_pagesize = 10;
 	}
+	function getSearchSql($params){
+		$sql = ' where 1=1 ';
+		if( !empty($params->msgtype) ){
+			$msgtype = $params->msgtype;
+			$sql = $sql." and msgtype='$msgtype' ";
+		}
+
+		return $sql;
+	}
 	function getListParams(){
 		$params = json_decode('{}');
 	  	$params->_page = $_GET['_page'];
@@ -89,6 +98,15 @@ class Dao_text extends Dao{
 		
 		$this->table = 'text';
 		$this->_pagesize = 10;
+	}
+	function getSearchSql($params){
+		$sql = ' where 1=1 ';
+		if( !empty($params->msgtype) ){
+			$msgtype = $params->msgtype;
+			$sql = $sql." and msgtype='$msgtype' ";
+		}
+
+		return $sql;
 	}
 	function getListParams(){
 		$params = json_decode('{}');
@@ -274,6 +292,21 @@ class Dao_keyword extends Dao{
 		
 		$this->table = 'keyword';
 		$this->_pagesize = 10;
+	}
+	function getSearchSql($params){
+		$sql = ' where 1=1 ';
+		
+		if(!empty($params->msgtype)){
+			$msgtype = $params->msgtype;
+			$sql = $sql." and (msgtypes like '$msgtype,%' or msgtypes like '%,$msgtype,%' or msgtypes like '%,$msgtype') ";
+		}
+		if(!empty($params->key)){
+			$key = $params->key;
+			$sql = $sql." and (keys like '$key,%' or keys like '%,$key,%' or keys like '%,$key') ";
+		}
+
+
+		return $sql;
 	}
 	function getListParams(){
 		$params = json_decode('{}');

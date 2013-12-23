@@ -259,7 +259,12 @@ class Dao{
 	function Dao(){
 		$this->table = '';
 	}
-	
+	function getSearchSql($params){
+		$sql = ' where 1=1 ';
+
+
+		return $sql;
+	}
 	function getListParams(){
 		
 	}
@@ -362,15 +367,12 @@ class Dao{
 			return '{"code":500,"msg":"bulkdelete 好像出错了"}';
 		}
 	}
+	//select * from keyword where msgtypes like '2,%' or msgtypes like '%,2,%' or msgtypes like '%,2';
 	//待改进 $condition
 	function _count($opts){
 		$table = $this->table;
 		$result = null;
-		$condition = ' where 1=1 ';
-		if( !empty($opts->msgtype) and ($table == 'image' or $table == 'text') ){
-			$msgtype = $opts->msgtype;
-			$condition = $condition." and msgtype='$msgtype' ";
-		}
+		$condition = $this->getSearchSql($opts);
 	
 		$sql = "select count(*) from $table ".$condition;
 		
@@ -392,11 +394,7 @@ class Dao{
 		$table = $this->table;
 	
 		$array = null;
-		$condition = ' where 1=1 ';
-		if( !empty($opts->msgtype) and ($table == 'image' or $table == 'text') ){
-			$msgtype = $opts->msgtype;
-			$condition = $condition." and msgtype='$msgtype' ";
-		}
+		$condition = $this->getSearchSql($opts);
 		
 		$page = $opts->_page?$opts->_page:1;
 		$pagesize = $opts->_pagesize?$opts->_pagesize:$this->_pagesize;

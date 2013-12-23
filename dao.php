@@ -4,238 +4,540 @@ $path = dirname(__FILE__);
 include($path.'\db_sqlite.php');
 
 
-$action_array = array(
-	'image.list'=>'12',
-	'image.update'=>'1',
 
-	);
-class dao_image{
+
+
+/*image*/
+class Dao_image extends Dao{
 	
-	function _list($options){
-		$ret = json_decode('{"code":0,"msg":""}');
-		$result = array();
+	function Dao_image(){
 		
-		$id = $_GET["id"];
-		$page = $_GET["_page"];
-		$pagesize = $_GET["_pagesize"];
-
-		if(!$page){
-			$page = 0;
-		}else{
-			$page = intval($page);
-			$page--;
-		}
-		if(!$pagesize){
-			$pagesize = 10;
-		}else{
-			$pagesize = intval($pagesize);
-		}
-		$index = $page*$pagesize;
-
-		$limit = " limit $index,$pagesize";
-		$sql = 'select * from image order by id desc '.$limit;
-		sqlite_logger($sql);
-		//$sql = 'select * from image ';
-		
-		//$count_sql = 'select count(*) from image';
-		$db = new db_sqlite();
-		$conn = $db->connect_sqlite();
-		$result = $db->query_sqlite($conn,$sql);
-		//总数
-		$count = $db->query_total($conn,'image');
-		
-		$db->close_sqlite($conn);
-		$db = null;
-
-		$ret->data = $result;
-		$ret->total = $count;
-		return $ret;
-
+		$this->table = 'image';
+		$this->_pagesize = 10;
 	}
+	function getSearchSql($params){
+		$sql = ' where 1=1 ';
+		if( !empty($params->msgtype) ){
+			$msgtype = $params->msgtype;
+			$sql = $sql." and msgtype='$msgtype' ";
+		}
 
-	function _update($record){
-		$count = 0;
-		$picurl=$record->picurl;
-	  	$mediaid=$record->mediaid ;
-	  	$id=$record->id ;
-	  	$notes=$record->notes ? $record->notes:'';
-	  	$msgtype=$record->msgtype ?$record->msgtype:'';
-
-	  	if($picurl and $mediaid and $id){
-	  		try{
-	  			$sql = "update image set picurl = '$picurl',mediaid = '$mediaid',msgtype = '$msgtype',notes='$notes' where id = $id ";
-	  			sqlite_logger(' sql '.$sql);
-		  		$db = new db_sqlite();
-				$conn = $db->connect_sqlite();
-				
-				$db->exec_sqlite($conn,$sql);
-				$db->commit_sqlite($conn);
-				
-				$db->close_sqlite($conn);
-				$db = null;
-			}
-			catch(Exception $e){
-
-				return false;
-			}
-
-	  	}
-
-	  	return true;
-
+		return $sql;
 	}
-	function _delete($id){
+	function getListParams(){
+		$params = json_decode('{}');
+	  	$params->_page = $_GET['_page'];
+	  	$params->_pagesize = $_GET['_pagesize'];
+	  	$params->msgtype = $_GET['msgtype'];
 
-		
-  		try{
-  			$sql = "delete from  image  where id = $id ";
-  			sqlite_logger(' sql '.$sql);
-	  		$db = new db_sqlite();
-			$conn = $db->connect_sqlite();
-			
-			$db->exec_sqlite($conn,$sql);
-			$db->commit_sqlite($conn);
-			
-			$db->close_sqlite($conn);
-			$db = null;
-			return true;
-		}
-		catch(Exception $e){
+	  	return $params;
+	}
+	function getUpdateParams(){
+		$record = json_decode('{}');
 
-			return false;
-		}
+		$picurl = getRequest('picurl');
+		$mediaid = getRequest('mediaid');
+		$msgtype = getRequest('msgtype');
+		$notes = getRequest('notes');
+		$id = getRequest('id');
 
+	  	$record->picurl =  $picurl;
+	  	$record->mediaid = $mediaid;
+	  	$record->id = $id;
+	  	$record->notes = $notes;
+	  	$record->msgtype = $msgtype;
 	  	
-
-	  	return false;
-
+	  	if( empty($id) or empty($mediaid) or empty($picurl) ){
+	  		$record = json_decode('{"code":500}');
+	  		$record->msg = 'update 参数不完整';
+	  	}
+	  	return $record;
 	}
-	function _create($record){
-		$result = -1;
-		
-		$picurl = $record->picurl ;
-	  	$mediaid = $record->mediaid ;
-	  	$notes = $record->notes ;
-	  	$msgtype = $record->msgtype;
-		
-		
-		$sql = "insert into image(picurl,mediaid,msgtype,notes) values('$picurl','$mediaid','$msgtype','$notes')";
+	function getDeleteParams(){
+		$record = json_decode('{}');
+	  	$id = $_GET['id'];
+	  	$record->id = $id;
+	  	
+	  	if( empty($id) ){
+	  		$record = json_decode('{"code":500}');
+	  		$record->msg = 'id miss';
+	  	}
+	  	return $record;
+	}
+	function getCreateParams(){
+		$record = json_decode('{}');
 
-		try{
-			$db = new db_sqlite();
-			$conn = $db->connect_sqlite();
-			$db->exec_sqlite($conn,$sql);
-   			$db->commit_sqlite($conn);
-   			$result = $db->query_maxid($conn,'image');
-    		$db->close_sqlite($conn);
+		
+		$picurl = getRequest('picurl');
+		$mediaid = getRequest('mediaid');
+		$msgtype = getRequest('msgtype');
+		$notes = getRequest('notes');
+		
 
-    		$db = null;
-    		$result->data = $maxid;
-		}catch(Exception $e){
+	  	$record->picurl =  $picurl;
+	  	$record->mediaid = $mediaid;
+	  	$record->notes = $notes;
+	  	$record->msgtype = $msgtype;
 
-			return $result;
+
+	  	if( empty($mediaid) or empty($picurl) ){
+	  		$record = json_decode('{"code":500}');
+	  		$record->msg = 'create 参数不完整';
+	  	}
+	  		
+	  	return $record;
+	}
+	
+
+}
+
+/*text*/
+class Dao_text extends Dao{
+	
+	function Dao_text(){
+		
+		$this->table = 'text';
+		$this->_pagesize = 10;
+	}
+	function getSearchSql($params){
+		$sql = ' where 1=1 ';
+		if( !empty($params->msgtype) ){
+			$msgtype = $params->msgtype;
+			$sql = $sql." and msgtype='$msgtype' ";
 		}
 
-		return $result;
+		return $sql;
 	}
+	function getListParams(){
+		$params = json_decode('{}');
+	  	$params->_page = $_GET['_page'];
+	  	$params->_pagesize = $_GET['_pagesize'];
+	  	$params->msgtype = $_GET['msgtype'];
 
-}
-
-$action = null;
-if($_GET['action']){
-	$action = $_GET['action'];
-}
-if($_POST['action']){
-	$action = $_POST['action'];
-}
-
-sqlite_logger( 'action:'.$action );
-//echo "string action ".$action.'<br>';
-if($action){
-	
-	switch ($action){
-		case 'image.list':
-		  	$image = new dao_image();
-			$ret = $image->_list();
-			
-			//zhuan str
-			echo json_encode($ret);
-			exit();
-			break;  
-		case 'image.update':
-			$image = new dao_image();
-			$result = json_decode('{"code":-1,"msg":"好像出错了"}');
-
-		  	$record = json_decode('{"_abc":1}');
-		  	$record->picurl = $_POST['picurl'];
-		  	$record->mediaid = $_POST['mediaid'];
-		  	$record->id = $_POST['id'];
-		  	$record->notes = $_POST['notes'];
-		  	$record->msgtype = $_POST['msgtype'];
-
-		  	$r = $image->_update($record);
-		  	if($r){
-		  		$result->code = 0;
-		  	}
-		  	sqlite_logger( json_encode($record) );
-
-		  	echo json_encode($result);
-		  	exit();
-			break;
-		case 'image.delete':
-			$result = json_decode('{"code":-1,"msg":"好像出错了"}');
-			$id = $_GET['id'];
-			if($id){
-				sqlite_logger("delete id $id");
-				$image = new dao_image();
-				$ret = $image->_delete($id);
-				if($ret){
-			  		$result->code = 0;
-			  		
-			  	}
-			}
-			echo json_encode($result);  	
-			
-			exit();
-			break;  
-		case 'image.create':
-			$result = json_decode('{"code":-1,"msg":"创建图片信息出错了"}');
-			
-			$record = json_decode('{}');
-		  	$picurl = $record->picurl = $_POST['picurl'];
-		  	$mediaid = $record->mediaid = $_POST['mediaid'];
-		  	$notes = $record->notes = $_POST['notes'];
-		  	$msgtype = $record->msgtype = $_POST['msgtype'];
-
-
-			if($picurl and $mediaid and $msgtype){
-				$image = new dao_image();
-				$ret = $image->_create($record);
-				if($ret>-1){
-			  		$result->code = 0;
-			  		$result->data = $ret;
-			  	}
-			}
-			echo json_encode($result);  	
-			
-			exit();
-			break;  
-		default:
-
-			break;
+	  	return $params;
 	}
-			
+	function getUpdateParams(){
+		$record = json_decode('{}');
+		
+		$id = getRequest('id');
+		$content = getRequest('content');
+		$msgtype = getRequest('msgtype');
+		$notes = getRequest('notes');
+		 
+	  	$record->content =  $content?$content:'';
+	  	$record->id = $id;
+	  	$record->notes = $notes?$notes:'';
+	  	$record->msgtype = $msgtype?$msgtype:'';
+	  	
+	  	if( empty($id) or empty($content)  ){
+	  		$record = json_decode('{"code":500}');
+	  		$record->msg = 'update 参数不完整';
+	  	}
+	  	return $record;
+	}
+	function getDeleteParams(){
+		$record = json_decode('{}');
+	  	$record->id = $_GET['id'];
+	  	
+	  	if( empty($record->id) ){
+	  		$record = json_decode('{"code":500}');
+	  		$record->msg = 'id miss';
+	  	}
+	  	return $record;
+	}
+	function getCreateParams(){
+		$record = json_decode('{}');
+
+		$content = getRequest('content');
+		$msgtype = getRequest('msgtype');
+		$notes = getRequest('notes');
+		
+	  	$record->content =  $content?$content:'';
+	  	$record->notes = $notes?$notes:'';
+	  	$record->msgtype = $msgtype?$msgtype:'';
+	  	if( empty($content) ){
+	  		$record = json_decode('{"code":500}');
+	  		$record->msg = 'create 参数不完整';
+	  	}
+	  		
+	  	return $record;
+	}
 	
-}else{
-	echo "action:".$_GET['action'].'<br>';
-	echo "action type :".gettype($_GET['action']).'<br>';
-	echo "action type :".($_GET['action']==null).'<br>';
-	echo "action type :".(!$_GET['action']).'<br>';
-	echo "action type :".($action_array['image.list']).'<br>';
-	echo 'please input action';
-	test0();
-	exit();
 }
+
+/*msgtype*/
+class Dao_msgtype extends Dao{
+	
+	function Dao_msgtype(){
+		
+		$this->table = 'msgtype';
+		$this->_pagesize = 10;
+	}
+	function getListParams(){
+		$params = json_decode('{}');
+	  	$params->_page = $_GET['_page'];
+	  	$params->_pagesize = $_GET['_pagesize'];
+	  
+
+	  	return $params;
+	}
+	function getUpdateParams(){
+		$record = json_decode('{}');
+		
+		$name = getRequest('name');
+		$id = getRequest('id');
+		
+	  	$record->name =  $name?$name:'';
+	  	$record->id = $id;
+	  	
+	  	if( empty($id) or empty($name)  ){
+	  		$record = json_decode('{"code":500}');
+	  		$record->msg = 'update 参数不完整';
+	  	}
+	  	return $record;
+	}
+	function getDeleteParams(){
+		$record = json_decode('{}');
+	  	$record->id = $_GET['id'];
+	  	
+	  	if( empty($record->id) ){
+	  		$record = json_decode('{"code":500}');
+	  		$record->msg = 'id miss';
+	  	}
+	  	return $record;
+	}
+	function getCreateParams(){
+		$record = json_decode('{}');
+
+		$name = getRequest('name');
+ 
+	  	$record->name =  $name?$name:'';
+	  	if( empty($name) ){
+	  		$record = json_decode('{"code":500}');
+	  		$record->msg = 'create 参数不完整';
+	  	}
+	  		
+	  	return $record;
+	}
+	
+
+}
+
+/*about*/
+class Dao_about extends Dao{
+	
+	function Dao_about(){
+		
+		$this->table = 'about';
+		$this->_pagesize = 1;
+	}
+	function getListParams(){
+		$params = json_decode('{}');
+	  	$params->_page = $_GET['_page'];
+	  	$params->_pagesize = $_GET['_pagesize'];
+	  
+
+	  	return $params;
+	}
+	function getUpdateParams(){
+		$record = json_decode('{}');
+		
+		$author = getRequest('author');
+		$reply = getRequest('reply');
+		$id = getRequest('id');
+		
+	  	$record->author =  $author;
+	  	$record->reply =  $reply;
+	  	$record->id = $id;
+	  	
+	  	if( empty($id) or empty($author) or empty($reply) ){
+	  		$record = json_decode('{"code":500}');
+	  		$record->msg = 'update 参数不完整';
+	  	}
+	  	return $record;
+	}
+	function getDeleteParams(){
+		$record = json_decode('{}');
+	  	$record->id = $_GET['id'];
+	  	
+	  	if( empty($record->id) ){
+	  		$record = json_decode('{"code":500}');
+	  		$record->msg = 'id miss';
+	  	}
+	  	return $record;
+	}
+	function getCreateParams(){
+		$record = json_decode('{}');
+
+		$author = getRequest('author');
+		$reply = getRequest('reply');
+ 
+	  	$record->author =  $author;
+	  	$record->reply =  $reply;
+	  	if( empty($author) or empty($reply) ){
+	  		$record = json_decode('{"code":500}');
+	  		$record->msg = 'create 参数不完整';
+	  	}
+	  		
+	  	return $record;
+	}
+	
+
+}
+
+/*keyword*/
+class Dao_keyword extends Dao{
+	
+	function Dao_keyword(){
+		
+		$this->table = 'keyword';
+		$this->_pagesize = 10;
+	}
+	function getSearchSql($params){
+		$sql = ' where 1=1 ';
+		
+		if(!empty($params->msgtype)){
+			$msgtype = $params->msgtype;
+			$sql = $sql." and (msgtypes like '$msgtype,%' or msgtypes like '%,$msgtype,%' or msgtypes like '%,$msgtype') ";
+		}
+		if(!empty($params->key)){
+			$key = $params->key;
+			$sql = $sql." and (keys like '$key,%' or keys like '%,$key,%' or keys like '%,$key') ";
+		}
+
+
+		return $sql;
+	}
+	function getListParams(){
+		$params = json_decode('{}');
+	  	$params->_page = $_GET['_page'];
+	  	$params->_pagesize = $_GET['_pagesize'];
+	  	$params->key = $_GET['key'];
+	  	$params->msgtype = $_GET['msgtype'];
+	  
+
+	  	return $params;
+	}
+	function getUpdateParams(){
+		$record = json_decode('{}');
+		
+		$reply = getRequest('reply');
+		$msgtypes = getRequest('msgtypes');
+		$keys = getRequest('keys');
+		$name = getRequest('name');
+		$id = getRequest('id');
+		
+	  	$record->name =  $name;
+	  	$record->reply =  $reply;
+	  	$record->keys =  $keys;
+	  	$record->msgtypes =  $msgtypes;
+	  	$record->id = $id;
+	  	
+	  	if( empty($id) or empty($name) or empty($keys)  ){
+	  		$record = json_decode('{"code":500}');
+	  		$record->msg = 'update 参数不完整';
+	  	}
+	  	return $record;
+	}
+	function getDeleteParams(){
+		$record = json_decode('{}');
+
+		$id = $_GET['id'];
+	  	$record->id = $id;
+	  	
+	  	if( empty($id) ){
+	  		$record = json_decode('{"code":500}');
+	  		$record->msg = 'id miss';
+	  	}
+	  	return $record;
+	}
+	function getCreateParams(){
+		$record = json_decode('{}');
+
+		$reply = getRequest('reply');
+		$msgtypes = getRequest('msgtypes');
+		$keys = getRequest('keys');
+		$name = getRequest('name');
+ 
+	  	$record->name =  $name;
+	  	$record->reply =  $reply;
+	  	$record->keys =  $keys;
+	  	$record->msgtypes =  $msgtypes;
+	  	if( empty($name) or empty($keys) or (empty($reply) and empty($msgtypes)) ){
+	  		$record = json_decode('{"code":500}');
+	  		$record->msg = 'create 参数不完整';
+	  	}
+	  		
+	  	return $record;
+	}
+	
+
+}
+
+/* 中转站 */
+class Station{
+	function handle(){
+		/*     */
+		$actionList = array(
+			'image.list'=>'Dao_image',
+			'image.update'=>'Dao_image',
+			'image.create'=>'Dao_image',
+			'image.delete'=>'Dao_image',
+			'image.bulkdelete'=>'Dao_image',
+			'image.get'=>'Dao_image',
+
+			'text.list'=>'Dao_text',
+			'text.update'=>'Dao_text',
+			'text.create'=>'Dao_text',
+			'text.delete'=>'Dao_text',
+			'text.bulkdelete'=>'Dao_text',
+			'text.get'=>'Dao_text',
+
+			'msgtype.list'=>'Dao_msgtype',
+			'msgtype.update'=>'Dao_msgtype',
+			'msgtype.create'=>'Dao_msgtype',
+			'msgtype.delete'=>'Dao_msgtype',
+			'msgtype.bulkdelete'=>'Dao_msgtype',
+			'msgtype.get'=>'Dao_msgtype',
+
+			'about.list'=>'Dao_about',
+			'about.update'=>'Dao_about',
+			'about.create'=>'Dao_about',
+			'about.delete'=>'Dao_about',
+			'about.get'=>'Dao_about',
+
+			'keyword.list'=>'Dao_keyword',
+			'keyword.update'=>'Dao_keyword',
+			'keyword.create'=>'Dao_keyword',
+			'keyword.delete'=>'Dao_keyword',
+			'keyword.bulkdelete'=>'Dao_keyword',
+			'keyword.get'=>'Dao_keyword',
+
+
+		);
+		
+		$action = getRequest('action');
+
+		sqlite_logger( 'action:'.$action );
+		//echo "string action ".$action.'<br>';
+		if( $action and $actionList[$action] ){
+			$array = explode('.',$action);
+			
+			$_target = $array[0];
+			$_action = $array[1];
+			$_dao = $actionList[$action];
+			$_fn = 'ajax_'.$_action;
+
+			$dao = new $_dao();
+			$ret = $dao->$_fn();
+			echo $ret;
+			exit();
+			
+			/*switch ($action){
+				case 'image.list':
+				  	$image = new Dao_image();
+
+					$ret = $image->ajax_list();
+					echo $ret;
+					exit();
+					break;  
+				case 'image.update':
+					$image = new Dao_image();                   
+
+				  	$ret = $image->ajax_update();
+				  	echo $ret;
+				  	exit();
+					break;
+				case 'image.delete':
+					$image = new Dao_image();
+					$ret = $image->ajax_delete();
+					echo $ret;  	
+					
+					exit();
+					break;  
+				case 'image.create':
+					$image = new Dao_image();
+					$ret = $image->ajax_create();
+					echo $ret; 	
+					
+					exit();
+					break;  
+				case 'text.list':
+				  	$text = new Dao_text();
+
+					$ret = $text->ajax_list();
+					echo $ret;
+					exit();
+					break; 
+				case 'text.update':
+					$text = new Dao_text();
+
+				  	$ret = $text->ajax_update();
+				  	echo $ret;
+				  	exit();
+					break;
+				case 'text.delete':
+					$text = new Dao_text();
+					$ret = $text->ajax_delete();
+					echo $ret;  	
+					
+					exit();
+					break;  
+				case 'text.create':
+					$text = new Dao_text();
+					$ret = $text->ajax_create();
+					echo $ret; 	
+					
+					exit();
+					break;
+
+				case 'msgtype.list':
+				  	$dao = new Dao_msgtype();
+
+					$ret = $dao->ajax_list();
+					echo $ret;
+					exit();
+					break; 
+				case 'msgtype.update':
+					$dao = new Dao_msgtype();
+
+				  	$ret = $dao->ajax_update();
+				  	echo $ret;
+				  	exit();
+					break;
+				case 'msgtype.delete':
+					$dao = new Dao_msgtype();
+					$ret = $dao->ajax_delete();
+					echo $ret;  	
+					
+					exit();
+					break;  
+				case 'msgtype.create':
+					$dao = new Dao_msgtype();
+					$ret = $dao->ajax_create();
+					echo $ret; 	
+					
+					exit();
+					break;      
+				default:
+					echo '{"code":404,"msg":"action未匹配 "}';
+					break;
+			}*/
+					
+			
+		}else{
+			echo '{"code":404,"msg":"miss action "}';
+		}
+	}
+}
+	
+$station = new Station();
+$station->handle();
+
+
+
+
+
 function test0(){
 	$sql = "update image set picurl = 'http://mmbiz.qpic.cn/mmbiz/veD11cgRBcnQnxVshoP21fAF5pTMCicRdPuEozLVr88OX4Q3YFVaAicASdTOD4Fx5cw0s5ybALKMcbJHoT3QULbA/0',mediaid = 'gRwaHXoqXkoHnTFjdnKdPR3bkFrh64eo-Pk2BOg9_Ldy8Q0d_7S0gDX5YEwocggv',msgtype = 'joke',notes='11222' where id = 22";
 

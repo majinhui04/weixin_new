@@ -10,16 +10,14 @@
 define(function (require, exports, module) {
 	var app = require('admin/mainApp');
 	
-	app.register.controller('imageController', 
-    ['$scope','$routeParams', '$location','$timeout' ,'$q','Message','imageService','ScreenMask','msgtypeService','Util',
-	    function($scope,$routeParams, $location,$timeout,$q,Message,imageService,ScreenMask,msgtypeService,Util){
+	app.register.controller('msgtypeController', 
+    ['$scope','$routeParams', '$location','$timeout' ,'$q','Message','msgtypeService','ScreenMask','Util',
+	    function($scope,$routeParams, $location,$timeout,$q,Message,msgtypeService,ScreenMask,Util){
 	         
-         
+      
           $scope.saveText = '保存';
         	$scope.pagination = {
-              page:1,
               pagesize:10
-
           };
           $scope.searchData = {};
           $scope.search = $scope.pagination.click = function(page){
@@ -34,20 +32,13 @@ define(function (require, exports, module) {
                   msgtype:searchData.msgtype || ''
               };
 
-              imageService.list(data).then(
+              msgtypeService.list(data).then(
                 function(result){
-                  var list = result.data || [],total = result.total,item,msgtypeList = $scope.msgtypeList,msgtype;
+                  var list = result.data || [],total = result.total;
                   
-
-                    $scope.pagination.recordCount = total;
-                    console.log('dataList',result);
-
-                    for (var i = list.length - 1; i >= 0; i--) {
-                      item = list[i];
-                      msgtype = Util.getObjInArray(msgtypeList,'id',item.msgtype);
-                      item._msgtype = msgtype?msgtype.name:'不存在';
-                    };
-                    $scope.dataList = list;
+                  $scope.pagination.recordCount = total;
+                  console.log('dataList',result);
+                  $scope.dataList = list;
 
                 },function(result){
                   Message.show(result.msg,'error');
@@ -114,7 +105,7 @@ define(function (require, exports, module) {
           };
           $scope.create = function(record){
 
-              imageService.create(record).then(function(result){
+              msgtypeService.create(record).then(function(result){
                   console.log('create ok',result);
                   $scope.search();
                   $('#myTab a:first').tab('show');
@@ -132,10 +123,10 @@ define(function (require, exports, module) {
 
           $scope.update = function(record){
 
-              imageService.update(record).then(function(result){
+              msgtypeService.update(record).then(function(result){
                   console.log('update ok',result);
                   $('#myTab a:first').tab('show');
-                  $scope.search();
+
               },function(){
                   Message.show('update error');
 
@@ -150,7 +141,7 @@ define(function (require, exports, module) {
           $scope.delete = function(record){
               record._pending = true;
               
-              imageService.delete({id:record.id,_action:'删除成功了'}).then(function(result){
+              msgtypeService.delete({id:record.id,_action:'删除成功了'}).then(function(result){
                   $scope.search();
 
               },function(result){
@@ -172,7 +163,7 @@ define(function (require, exports, module) {
               }
               
               $scope.pending = true;
-              imageService.bulkdelete({ids:ids.join(','),_action:'通通干掉了'}).then(function(result){
+              msgtypeService.bulkdelete({ids:ids.join(','),_action:'通通干掉了'}).then(function(result){
                   $scope.search();
 
               },function(result){
@@ -196,21 +187,9 @@ define(function (require, exports, module) {
               Util.bindCheckAll();
           }
           function init(){
+              $scope.search();
+          }
             
-
-            msgtypeService.list().then(function(result){
-                  var list = result.data || [];
-                
-                  $scope.msgtypeList = list;
-                  $scope.search();
-                }
-                  ,function(result){
-                  Message.show(result.msg,'error');
-                    console.warn('error ',result);
-                }
-              );
-
-            }
        		
 	    }
     ]
